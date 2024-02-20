@@ -88,6 +88,9 @@ dependencies {
     implementation (libs.androidx.hilt.navigation.compose)
 
     implementation (libs.accompanist.systemuicontroller)
+
+    // jsoup HTML parser library @ https://jsoup.org/
+    implementation (libs.jsoup)
 }
 
 kapt{
