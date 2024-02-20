@@ -25,7 +25,7 @@ class MainViewModel @Inject constructor(private val repository: RemoteRepository
     }
 
     private fun loadTestData() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             when (val resultLoad = repository.parsePage()) {
                 is Resource.Error -> {
                     Log.d("test parse page", "error: ${resultLoad.message}")

@@ -4,6 +4,8 @@ package olappdengato.rusnewwws.data.repository
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import olappdengato.rusnewwws.data.mapper.mapToLoans
 import olappdengato.rusnewwws.data.remote.ZaimApi
 import olappdengato.rusnewwws.domain.model.Dividend
@@ -32,22 +34,24 @@ class RemoteRepositoryImpl @Inject constructor(private  val api: ZaimApi): Remot
     @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun parsePage(): Resource<List<Dividend>> {
         return  try {
-            val dividends = mutableListOf<Dividend>()
-            val doc = Jsoup.connect("https://www.dohod.ru/ik/analytics/dividend/lkoh").get()
-
-            val baseClass = doc.select("table")
-            val linksTd = baseClass[2].select("td")
-            for (i in 0..<linksTd.size step 4) {
-                val dividend = mapToDividend(
-                    dateDeclaration = linksTd[i].text(),
-                    dateClose = linksTd[i+1].text(),
-                    year = linksTd[i+2].text(),
-                    value = linksTd[i+3].text()
-                )
-                //Log.d("test parse page", "number {$i}, dividend: ${dividend}")
-                dividends.add(dividend)
+            withContext(Dispatchers.IO)
+            {
+                val dividends = mutableListOf<Dividend>()
+                val doc = Jsoup.connect("https://www.dohod.ru/ik/analytics/dividend/akrn").get()
+                val baseClass = doc.select("table")
+                val linksTd = baseClass[2].select("td")
+                for (i in 0..<linksTd.size step 4) {
+                    val dividend = mapToDividend(
+                        dateDeclaration = linksTd[i].text(),
+                        dateClose = linksTd[i + 1].text(),
+                        year = linksTd[i + 2].text(),
+                        value = linksTd[i + 3].text()
+                    )
+                    //Log.d("test parse page", "number {$i}, dividend: ${dividend}")
+                    dividends.add(dividend)
+                }
+                Resource.Success(dividends)
             }
-            Resource.Success(dividends)
         } catch (e: Exception) {
             e.printStackTrace()
             Resource.Error(e.message ?: "An unknown error")
